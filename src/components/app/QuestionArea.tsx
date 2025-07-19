@@ -52,6 +52,10 @@ export default function QuestionArea({
   const handleExportPdf = () => {
     const input = exportRef.current;
     if (input) {
+      toast({
+        title: 'Preparing PDF...',
+        description: 'Your download will start shortly.',
+      });
       html2canvas(input, {
         scale: 2,
         useCORS: true,
@@ -66,13 +70,13 @@ export default function QuestionArea({
         const ratio = canvasWidth / pdfWidth;
         const imgHeight = canvasHeight / ratio;
         let heightLeft = imgHeight;
-        let position = 0;
+        let position = 10; // Add top margin
 
         pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeight);
         heightLeft -= pdfHeight;
 
         while (heightLeft > 0) {
-          position = -heightLeft;
+          position = -heightLeft + 10; // Add top margin to subsequent pages
           pdf.addPage();
           pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeight);
           heightLeft -= pdfHeight;
@@ -183,7 +187,7 @@ export default function QuestionArea({
         </div>
       </div>
       <Separator className="my-4" />
-      <div ref={exportRef} className="space-y-4 p-4 bg-card rounded-lg">
+      <div ref={exportRef} className="space-y-4 p-4 bg-white rounded-lg">
         {questionOrder.map(section => (
           groupedQuestions[section] && groupedQuestions[section].length > 0 && (
             <div key={section}>
