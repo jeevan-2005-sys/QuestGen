@@ -12,6 +12,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import QuestionCard from './QuestionCard';
+import AnswerSheet from './AnswerSheet';
 import { handleRegenerateQuestions } from '@/app/actions';
 
 type QuestionAreaProps = {
@@ -36,6 +37,7 @@ export default function QuestionArea({
   error,
 }: QuestionAreaProps) {
   const exportRef = useRef<HTMLDivElement>(null);
+  const answerExportRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
   const groupedQuestions = useMemo(() => {
@@ -49,14 +51,17 @@ export default function QuestionArea({
     }, {} as Record<QuestionType, Question[]>);
   }, [questions]);
 
-  const handleExportPdf = () => {
-    const input = exportRef.current;
-    if (input) {
+  const handleExport = (
+    element: HTMLElement | null,
+    filename: string,
+    title: string
+  ) => {
+    if (element) {
       toast({
-        title: 'Preparing PDF...',
+        title: `Preparing ${title}...`,
         description: 'Your download will start shortly.',
       });
-      html2canvas(input, {
+      html2canvas(element, {
         scale: 2,
         useCORS: true,
         backgroundColor: '#FFFFFF',
@@ -82,13 +87,29 @@ export default function QuestionArea({
           heightLeft -= pdfHeight;
         }
 
-        pdf.save('QuestGenPlus_Paper.pdf');
+        pdf.save(filename);
         toast({
           title: 'Export Successful',
-          description: 'Your question paper has been downloaded.',
+          description: `Your ${title.toLowerCase()} has been downloaded.`,
         });
       });
     }
+  };
+
+  const handleExportPdf = () => {
+    handleExport(
+      exportRef.current,
+      'QuestGenPlus_Paper.pdf',
+      'Question Paper'
+    );
+  };
+
+  const handleExportAnswersPdf = () => {
+    handleExport(
+      answerExportRef.current,
+      'QuestGenPlus_Answers.pdf',
+      'Answer Key'
+    );
   };
 
   const onRegenerate = async () => {
@@ -175,14 +196,18 @@ export default function QuestionArea({
     <div className="mt-8">
       <div className="flex flex-col sm:flex-row justify-between items-center mb-4 gap-4">
         <h2 className="text-3xl font-headline font-bold">Generated Paper</h2>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={onRegenerate}>
+        <div className="flex flex-wrap gap-2">
+           <Button variant="outline" onClick={onRegenerate}>
             <RefreshCw className="mr-2 h-4 w-4" />
-            Regenerate for Weak Areas
+            Regenerate
           </Button>
           <Button onClick={handleExportPdf}>
             <Download className="mr-2 h-4 w-4" />
-            Export to PDF
+            Export Paper
+          </Button>
+           <Button onClick={handleExportAnswersPdf}>
+            <Download className="mr-2 h-4 w-4" />
+            Export Answers
           </Button>
         </div>
       </div>
@@ -203,6 +228,10 @@ export default function QuestionArea({
             </div>
           )
         ))}
+      </div>
+      {/* Hidden component for answer sheet export */}
+      <div className="absolute -z-10 -left-[9999px] top-0 opacity-0">
+          <AnswerSheet ref={answerExportRef} questions={questions} />
       </div>
     </div>
   );
