@@ -78,7 +78,8 @@ export default function QuestionCard({
       const result = await handleGetAnswerFeedback({
         question: question.question,
         correctAnswer: question.answer,
-        userAnswer: userAnswer
+        userAnswer: userAnswer,
+        marks: question.marks || 0,
       });
       setQuestionProperty('answerFeedback', result.feedback);
     } catch (error) {

@@ -15,6 +15,7 @@ const GetAnswerFeedbackInputSchema = z.object({
   question: z.string().describe('The question that was asked.'),
   correctAnswer: z.string().describe('The ideal correct answer.'),
   userAnswer: z.string().describe("The user's submitted answer."),
+  marks: z.number().describe('The marks allocated to the question.'),
 });
 export type GetAnswerFeedbackInput = z.infer<typeof GetAnswerFeedbackInputSchema>;
 
@@ -36,8 +37,9 @@ const prompt = ai.definePrompt({
 
   1.  **Identify Inaccuracies:** Point out any incorrect information in the user's answer.
   2.  **Identify Omissions:** Note any key information from the correct answer that is missing in the user's answer.
-  3.  **Provide Guidance:** Explain clearly why their answer is incorrect or incomplete.
-  4.  **Suggest Improvements:** Offer a revised version of their answer that is correct and complete.
+  3.  **Assess Answer Length:** Based on the allocated marks ({{{marks}}}), evaluate if the user's answer has sufficient length and detail. If it's too short, suggest which points could be elaborated.
+  4.  **Provide Guidance:** Explain clearly why their answer is incorrect or incomplete.
+  5.  **Suggest Improvements:** Offer a revised version of their answer that is correct and complete.
 
   Be encouraging and helpful in your tone.
 
