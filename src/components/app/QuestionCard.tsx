@@ -2,7 +2,7 @@
 
 import { useState, type Dispatch, type SetStateAction } from 'react';
 import Image from 'next/image';
-import { Lightbulb, Sparkles, Target, Send, Loader2 } from 'lucide-react';
+import { Lightbulb, Sparkles, Target, Send, Loader2, BookCopy } from 'lucide-react';
 
 import type { Question, QuestionFeedback } from '@/lib/types';
 import { cn } from '@/lib/utils';
@@ -81,7 +81,11 @@ export default function QuestionCard({
         userAnswer: userAnswer,
         marks: question.marks || 0,
       });
-      setQuestionProperty('answerFeedback', result.feedback);
+      setQuestions(prev => prev.map(q => q.id === question.id ? {
+        ...q,
+        answerFeedback: result.feedback,
+        suggestedAnswer: result.suggestedAnswer,
+      } : q));
     } catch (error) {
       console.error('Failed to get feedback:', error);
       setQuestionProperty('answerFeedback', 'Sorry, could not get feedback at this time.');
@@ -137,18 +141,20 @@ export default function QuestionCard({
             </RadioGroup>
         )}
         {showAnswerInput && (
-          <div className="ml-8 mt-4 space-y-2">
-            <Label htmlFor={`${question.id}-user-answer`}>Your Answer</Label>
-            <Textarea
-              id={`${question.id}-user-answer`}
-              value={userAnswer}
-              onChange={(e) => {
-                setUserAnswer(e.target.value)
-                setQuestionProperty('userAnswer', e.target.value)
-              }}
-              placeholder="Type your answer here..."
-              className="resize-y"
-            />
+          <div className="ml-8 mt-4 space-y-4">
+            <div>
+              <Label htmlFor={`${question.id}-user-answer`}>Your Answer</Label>
+              <Textarea
+                id={`${question.id}-user-answer`}
+                value={userAnswer}
+                onChange={(e) => {
+                  setUserAnswer(e.target.value)
+                  setQuestionProperty('userAnswer', e.target.value)
+                }}
+                placeholder="Type your answer here..."
+                className="resize-y mt-2"
+              />
+            </div>
              <Button onClick={onGetFeedback} disabled={isFeedbackLoading || !userAnswer}>
               {isFeedbackLoading ? (
                 <>
@@ -162,14 +168,25 @@ export default function QuestionCard({
                 </>
               )}
             </Button>
-            {isFeedbackLoading && <Skeleton className="h-16 w-full" />}
+            {isFeedbackLoading && <Skeleton className="h-24 w-full" />}
             {question.answerFeedback && !isFeedbackLoading && (
-              <div className="w-full mt-4 p-4 bg-green-50 border border-green-200 rounded-lg text-sm text-gray-800">
-                <p className="font-bold flex items-center mb-2 text-green-700">
-                  <Sparkles className="h-4 w-4 mr-2" /> Tutor Feedback
-                </p>
-                <Separator className="mb-2 bg-green-200" />
-                <p className="whitespace-pre-wrap">{question.answerFeedback}</p>
+              <div className="w-full mt-4 p-4 bg-green-50 border border-green-200 rounded-lg text-sm text-gray-800 space-y-4">
+                <div>
+                  <p className="font-bold flex items-center mb-2 text-green-700">
+                    <Sparkles className="h-4 w-4 mr-2" /> Tutor Feedback
+                  </p>
+                  <Separator className="mb-2 bg-green-200" />
+                  <p className="whitespace-pre-wrap">{question.answerFeedback}</p>
+                </div>
+                {question.suggestedAnswer && (
+                  <div>
+                    <p className="font-bold flex items-center mb-2 text-green-700">
+                      <BookCopy className="h-4 w-4 mr-2" /> Tutor's Suggested Answer
+                    </p>
+                    <Separator className="mb-2 bg-green-200" />
+                    <p className="whitespace-pre-wrap">{question.suggestedAnswer}</p>
+                  </div>
+                )}
               </div>
             )}
           </div>

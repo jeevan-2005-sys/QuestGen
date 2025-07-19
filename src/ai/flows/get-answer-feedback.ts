@@ -20,12 +20,20 @@ const GetAnswerFeedbackInputSchema = z.object({
 export type GetAnswerFeedbackInput = z.infer<typeof GetAnswerFeedbackInputSchema>;
 
 const GetAnswerFeedbackOutputSchema = z.object({
-  feedback: z.string().describe("Constructive feedback for the user, explaining what's wrong or missing and how to improve."),
-  suggestedAnswer: z.string().describe("A revised version of the user's answer, incorporating the feedback."),
+  feedback: z
+    .string()
+    .describe(
+      "Constructive feedback for the user, explaining what's wrong or missing and how to improve."
+    ),
+  suggestedAnswer: z
+    .string()
+    .describe("A revised version of the user's answer, incorporating the feedback."),
 });
 export type GetAnswerFeedbackOutput = z.infer<typeof GetAnswerFeedbackOutputSchema>;
 
-export async function getAnswerFeedback(input: GetAnswerFeedbackInput): Promise<GetAnswerFeedbackOutput> {
+export async function getAnswerFeedback(
+  input: GetAnswerFeedbackInput
+): Promise<GetAnswerFeedbackOutput> {
   return getAnswerFeedbackFlow(input);
 }
 
