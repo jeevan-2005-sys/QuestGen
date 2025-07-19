@@ -15,6 +15,7 @@ import SyllabusForm from '@/components/app/SyllabusForm';
 import PdfForm from '@/components/app/PdfForm';
 import VisualQuestionForm from '@/components/app/VisualQuestionForm';
 import QuestionArea from '@/components/app/QuestionArea';
+import Footer from '@/components/app/Footer';
 
 export default function Home() {
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -125,9 +126,7 @@ export default function Home() {
           />
         </div>
       </main>
-      <footer className="text-center py-4 text-sm text-muted-foreground">
-        <p>&copy; {new Date().getFullYear()} QuestGen+. All rights reserved.</p>
-      </footer>
+      <Footer />
     </div>
   );
 }
