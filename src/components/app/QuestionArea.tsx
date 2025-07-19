@@ -1,12 +1,12 @@
 'use client';
 
-import { useRef, type Dispatch, type SetStateAction } from 'react';
+import { useMemo, useRef, type Dispatch, type SetStateAction } from 'react';
 import { AlertTriangle, Download, RefreshCw } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { useToast } from '@/hooks/use-toast';
 
-import type { Question } from '@/lib/types';
+import type { Question, QuestionType } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
@@ -21,6 +21,14 @@ type QuestionAreaProps = {
   error: string | null;
 };
 
+const SectionHeader = ({ title }: { title: string }) => (
+  <div className="mt-6 mb-2">
+    <h3 className="text-xl font-headline font-semibold text-primary/90">{title}</h3>
+    <Separator className="bg-primary/20" />
+  </div>
+);
+
+
 export default function QuestionArea({
   questions,
   setQuestions,
@@ -30,13 +38,24 @@ export default function QuestionArea({
   const exportRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
+  const groupedQuestions = useMemo(() => {
+    return questions.reduce((acc, question) => {
+      const type = question.questionType || 'Short Answer';
+      if (!acc[type]) {
+        acc[type] = [];
+      }
+      acc[type].push(question);
+      return acc;
+    }, {} as Record<QuestionType, Question[]>);
+  }, [questions]);
+
   const handleExportPdf = () => {
     const input = exportRef.current;
     if (input) {
       html2canvas(input, {
         scale: 2,
         useCORS: true,
-        backgroundColor: '#E6E6FA',
+        backgroundColor: '#FFFFFF',
       }).then((canvas) => {
         const imgData = canvas.toDataURL('image/png');
         const pdf = new jsPDF('p', 'mm', 'a4');
@@ -44,16 +63,16 @@ export default function QuestionArea({
         const pdfHeight = pdf.internal.pageSize.getHeight();
         const canvasWidth = canvas.width;
         const canvasHeight = canvas.height;
-        const ratio = canvasWidth / pdfHeight;
-        let imgHeight = canvas.height * pdfWidth / canvas.width;
+        const ratio = canvasWidth / pdfWidth;
+        const imgHeight = canvasHeight / ratio;
         let heightLeft = imgHeight;
         let position = 0;
 
         pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeight);
         heightLeft -= pdfHeight;
 
-        while (heightLeft >= 0) {
-          position = heightLeft - imgHeight;
+        while (heightLeft > 0) {
+          position = -heightLeft;
           pdf.addPage();
           pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeight);
           heightLeft -= pdfHeight;
@@ -97,6 +116,7 @@ export default function QuestionArea({
       const newQuestions: Question[] = result.questions.map((q, index) => ({
         id: `regen-${index}-${Date.now()}`,
         question: q,
+        questionType: 'Multiple-Choice', // Defaulting regenerated for now
         feedback: null,
         topic: weakAreas[0], // Assign topic for future regeneration
       }));
@@ -145,6 +165,8 @@ export default function QuestionArea({
     );
   }
 
+  const questionOrder: QuestionType[] = ['Multiple-Choice', 'Short Answer', 'Long Answer'];
+
   return (
     <div className="mt-8">
       <div className="flex flex-col sm:flex-row justify-between items-center mb-4 gap-4">
@@ -162,13 +184,20 @@ export default function QuestionArea({
       </div>
       <Separator className="my-4" />
       <div ref={exportRef} className="space-y-4 p-4 bg-card rounded-lg">
-        {questions.map((q, index) => (
-          <QuestionCard
-            key={q.id}
-            question={q}
-            questionNumber={index + 1}
-            setQuestions={setQuestions}
-          />
+        {questionOrder.map(section => (
+          groupedQuestions[section] && groupedQuestions[section].length > 0 && (
+            <div key={section}>
+              <SectionHeader title={section.replace('-', ' ')} />
+              {groupedQuestions[section].map((q, index) => (
+                <QuestionCard
+                  key={q.id}
+                  question={q}
+                  questionNumber={index + 1}
+                  setQuestions={setQuestions}
+                />
+              ))}
+            </div>
+          )
         ))}
       </div>
     </div>

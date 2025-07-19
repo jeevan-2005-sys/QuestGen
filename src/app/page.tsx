@@ -30,6 +30,7 @@ export default function Home() {
       const parsedQuestions: Question[] = result.questions.map((q, index) => ({
         id: `${source}-${index}-${Date.now()}`,
         question: q.questionText,
+        questionType: q.questionType,
         feedback: null,
         topic: `${source === 'pdf' ? 'PDF' : 'Syllabus'}-based`,
       }));
@@ -59,6 +60,7 @@ export default function Home() {
       const parsedQuestions: Question[] = result.questions.map((q, index) => ({
         id: `visual-${index}-${Date.now()}`,
         question: q.question,
+        questionType: 'Long Answer', // Visual questions are treated as LAQ
         imageDataUri: q.imageDataUri,
         explanation: q.explanation,
         feedback: null,
