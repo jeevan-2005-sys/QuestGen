@@ -27,15 +27,12 @@ export default function Home() {
     setQuestions([]);
     try {
       const result = await handleGenerateQuestions(text);
-      const parsedQuestions: Question[] = result.questions
-        .split(/\n\s*\n/)
-        .filter((q) => q.trim().length > 0)
-        .map((q, index) => ({
-          id: `${source}-${index}-${Date.now()}`,
-          question: q.trim(),
-          feedback: null,
-          topic: `${source === 'pdf' ? 'PDF' : 'Syllabus'}-based`,
-        }));
+      const parsedQuestions: Question[] = result.questions.map((q, index) => ({
+        id: `${source}-${index}-${Date.now()}`,
+        question: q.questionText,
+        feedback: null,
+        topic: `${source === 'pdf' ? 'PDF' : 'Syllabus'}-based`,
+      }));
       setQuestions(parsedQuestions);
     } catch (e) {
       setError('Failed to generate questions. Please try again.');
