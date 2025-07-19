@@ -21,9 +21,7 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 
-// pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.mjs`;
-
 
 const FormSchema = z.object({
   content: z
@@ -109,83 +107,85 @@ export default function PdfForm({ onSubmit, isLoading }: PdfFormProps) {
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <FormItem>
-              <FormLabel>Upload PDF</FormLabel>
-              <FormControl>
-                <div className="relative">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="w-full"
-                    onClick={() =>
-                      document.getElementById('pdf-upload')?.click()
-                    }
-                    disabled={isExtracting}
-                  >
-                    {isExtracting ? (
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    ) : (
-                      <Upload className="mr-2 h-4 w-4" />
-                    )}
-                    {isExtracting
-                      ? 'Extracting...'
-                      : fileName || 'Select a PDF file'}
-                  </Button>
-                  <input
-                    id="pdf-upload"
-                    type="file"
-                    accept="application/pdf"
-                    onChange={handleFileChange}
-                    className="sr-only"
-                    disabled={isExtracting}
-                  />
-                </div>
-              </FormControl>
-              <FormDescription>
-                Upload a PDF document. The text will be extracted automatically.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-
-            <FormField
-              control={form.control}
-              name="content"
-              render={({ field }) => (
+            <div className="grid md:grid-cols-2 gap-6">
+              <div className="space-y-4">
                 <FormItem>
-                  <FormLabel>Extracted Content</FormLabel>
+                  <FormLabel>1. Upload PDF</FormLabel>
                   <FormControl>
-                    <Textarea
-                      placeholder="PDF content will appear here after extraction."
-                      className="resize-y min-h-[200px] bg-muted/50"
-                      readOnly
-                      {...field}
-                    />
+                    <div className="relative">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="w-full justify-start text-left font-normal"
+                        onClick={() =>
+                          document.getElementById('pdf-upload')?.click()
+                        }
+                        disabled={isExtracting}
+                      >
+                        {isExtracting ? (
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        ) : (
+                          <Upload className="mr-2 h-4 w-4" />
+                        )}
+                        <span className="truncate">
+                          {isExtracting
+                            ? 'Extracting...'
+                            : fileName || 'Select a PDF file'}
+                          </span>
+                      </Button>
+                      <input
+                        id="pdf-upload"
+                        type="file"
+                        accept="application/pdf"
+                        onChange={handleFileChange}
+                        className="sr-only"
+                        disabled={isExtracting}
+                      />
+                    </div>
                   </FormControl>
                   <FormDescription>
-                    Review the extracted content before generating questions.
+                    The text will be extracted automatically.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
-              )}
-            />
+                 <Button
+                  type="submit"
+                  disabled={isLoading || isExtracting || !form.getValues('content')}
+                  className="w-full"
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Generating...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="mr-2 h-4 w-4" />
+                      2. Generate Paper
+                    </>
+                  )}
+                </Button>
+              </div>
 
-            <Button
-              type="submit"
-              disabled={isLoading || isExtracting || !form.getValues('content')}
-              className="w-full"
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Generating...
-                </>
-              ) : (
-                <>
-                  <Send className="mr-2 h-4 w-4" />
-                  Generate Paper
-                </>
-              )}
-            </Button>
+              <FormField
+                control={form.control}
+                name="content"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Extracted Content</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="PDF content will appear here after extraction."
+                        className="resize-y h-full min-h-[200px] bg-muted/50"
+                        readOnly
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
           </form>
         </Form>
       </CardContent>
