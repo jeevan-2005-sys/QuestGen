@@ -31,6 +31,9 @@ export default function Home() {
         id: `${source}-${index}-${Date.now()}`,
         question: q.questionText,
         questionType: q.questionType,
+        options: q.options,
+        answer: q.answer,
+        marks: q.marks,
         feedback: null,
         topic: `${source === 'pdf' ? 'PDF' : 'Syllabus'}-based`,
       }));
@@ -65,6 +68,7 @@ export default function Home() {
         explanation: q.explanation,
         feedback: null,
         topic: data.topic,
+        marks: 5, // Default marks for visual questions
       }));
       setQuestions(parsedQuestions);
     } catch (e) {

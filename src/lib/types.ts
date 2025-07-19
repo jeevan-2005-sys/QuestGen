@@ -9,4 +9,7 @@ export type Question = {
   explanation?: string | null;
   topic?: string;
   feedback: QuestionFeedback;
+  options?: string[];
+  answer?: string;
+  marks?: number;
 };

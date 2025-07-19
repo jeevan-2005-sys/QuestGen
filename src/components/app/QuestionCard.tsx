@@ -17,6 +17,9 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { handleExplainAnswer } from '@/app/actions';
 import { Skeleton } from '../ui/skeleton';
+import { Badge } from '../ui/badge';
+import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
+import { Label } from '../ui/label';
 
 type QuestionCardProps = {
   question: Question;
@@ -49,10 +52,11 @@ export default function QuestionCard({
     try {
       const result = await handleExplainAnswer({
         question: question.question,
-        answer: 'Correct Answer', // The AI will derive from the question context
+        answer: question.answer || 'The provided answer',
       });
       setExplanation(result.explanation);
-    } catch (error) {
+    } catch (error)
+      {
       console.error('Failed to get explanation:', error);
       setExplanation('Sorry, could not fetch an explanation at this time.');
     } finally {
@@ -63,16 +67,22 @@ export default function QuestionCard({
   const feedbackOptions: QuestionFeedback[] = ['Got it', 'Struggled', 'Wrong'];
 
   return (
-    <Card className="shadow-md transition-shadow hover:shadow-lg">
+    <Card className="shadow-md transition-shadow hover:shadow-lg mb-4">
       <CardHeader>
-        <CardTitle className="text-lg font-body flex items-start">
-          <span className="text-primary font-bold mr-3">{questionNumber}.</span>
-          <p className="flex-1 whitespace-pre-wrap">{question.question}</p>
+        <CardTitle className="text-lg font-body flex items-start justify-between">
+            <div className='flex items-start'>
+                <span className="text-primary font-bold mr-3">{questionNumber}.</span>
+                <p className="flex-1 whitespace-pre-wrap">{question.question}</p>
+            </div>
+            {question.marks && (
+                <Badge variant="secondary">{question.marks} Mark{question.marks > 1 ? 's' : ''}</Badge>
+            )}
         </CardTitle>
       </CardHeader>
-      {question.imageDataUri && (
-        <CardContent>
-          <div className="relative w-full h-64 border rounded-md overflow-hidden">
+      
+      <CardContent>
+        {question.imageDataUri && (
+          <div className="relative w-full h-64 border rounded-md overflow-hidden mb-4">
             <Image
               src={question.imageDataUri}
               alt={`Visual for question ${questionNumber}`}
@@ -81,8 +91,19 @@ export default function QuestionCard({
               data-ai-hint="diagram chart"
             />
           </div>
-        </CardContent>
-      )}
+        )}
+        {question.questionType === 'Multiple-Choice' && question.options && (
+            <RadioGroup className="space-y-2 ml-8">
+              {question.options.map((option, index) => (
+                <div key={index} className="flex items-center space-x-2">
+                  <RadioGroupItem value={option} id={`${question.id}-option-${index}`} />
+                  <Label htmlFor={`${question.id}-option-${index}`}>{option}</Label>
+                </div>
+              ))}
+            </RadioGroup>
+        )}
+      </CardContent>
+
       <CardFooter className="flex flex-col items-start gap-4">
         <div className="flex flex-wrap gap-2">
           {feedbackOptions.map((fb) => (
