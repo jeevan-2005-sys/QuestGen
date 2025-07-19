@@ -15,4 +15,6 @@ export type Question = {
   marks?: number;
   bloomsLevel?: BloomsLevel;
   learningOutcome?: string;
+  userAnswer?: string | null;
+  answerFeedback?: string | null;
 };

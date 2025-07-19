@@ -20,6 +20,12 @@ import {
   type RegenerateQuestionsInput,
   type RegenerateQuestionsOutput,
 } from '@/ai/flows/regenerate-questions';
+import {
+  getAnswerFeedback,
+  type GetAnswerFeedbackInput,
+  type GetAnswerFeedbackOutput,
+} from '@/ai/flows/get-answer-feedback';
+
 
 export async function handleGenerateQuestions(
   syllabus: string
@@ -43,4 +49,10 @@ export async function handleRegenerateQuestions(
   input: RegenerateQuestionsInput
 ): Promise<RegenerateQuestionsOutput> {
   return await regenerateQuestions(input);
+}
+
+export async function handleGetAnswerFeedback(
+  input: GetAnswerFeedbackInput
+): Promise<GetAnswerFeedbackOutput> {
+  return await getAnswerFeedback(input);
 }

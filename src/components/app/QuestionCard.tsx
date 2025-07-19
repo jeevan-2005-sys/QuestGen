@@ -2,7 +2,7 @@
 
 import { useState, type Dispatch, type SetStateAction } from 'react';
 import Image from 'next/image';
-import { Lightbulb, Sparkles, Target } from 'lucide-react';
+import { Lightbulb, Sparkles, Target, Send, Loader2 } from 'lucide-react';
 
 import type { Question, QuestionFeedback } from '@/lib/types';
 import { cn } from '@/lib/utils';
@@ -15,11 +15,12 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { handleExplainAnswer } from '@/app/actions';
+import { handleExplainAnswer, handleGetAnswerFeedback } from '@/app/actions';
 import { Skeleton } from '../ui/skeleton';
 import { Badge } from '../ui/badge';
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 import { Label } from '../ui/label';
+import { Textarea } from '../ui/textarea';
 
 type QuestionCardProps = {
   question: Question;
@@ -36,11 +37,17 @@ export default function QuestionCard({
     question.explanation || null
   );
   const [isExplanationLoading, setIsExplanationLoading] = useState(false);
+  const [userAnswer, setUserAnswer] = useState(question.userAnswer || '');
+  const [isFeedbackLoading, setIsFeedbackLoading] = useState(false);
+  
+  const setQuestionProperty = (key: keyof Question, value: any) => {
+    setQuestions((prev) => 
+      prev.map((q) => (q.id === question.id ? { ...q, [key]: value } : q))
+    );
+  };
 
   const setFeedback = (feedback: QuestionFeedback) => {
-    setQuestions((prev) =>
-      prev.map((q) => (q.id === question.id ? { ...q, feedback } : q))
-    );
+    setQuestionProperty('feedback', feedback);
   };
 
   const getExplanation = async () => {
@@ -64,7 +71,26 @@ export default function QuestionCard({
     }
   };
 
+  const onGetFeedback = async () => {
+    if (!userAnswer || !question.answer) return;
+    setIsFeedbackLoading(true);
+    try {
+      const result = await handleGetAnswerFeedback({
+        question: question.question,
+        correctAnswer: question.answer,
+        userAnswer: userAnswer
+      });
+      setQuestionProperty('answerFeedback', result.feedback);
+    } catch (error) {
+      console.error('Failed to get feedback:', error);
+      setQuestionProperty('answerFeedback', 'Sorry, could not get feedback at this time.');
+    } finally {
+      setIsFeedbackLoading(false);
+    }
+  }
+
   const feedbackOptions: QuestionFeedback[] = ['Got it', 'Struggled', 'Wrong'];
+  const showAnswerInput = ['Short Answer', 'Long Answer'].includes(question.questionType);
 
   return (
     <Card className="shadow-md transition-shadow hover:shadow-lg mb-4">
@@ -109,6 +135,44 @@ export default function QuestionCard({
               ))}
             </RadioGroup>
         )}
+        {showAnswerInput && (
+          <div className="ml-8 mt-4 space-y-2">
+            <Label htmlFor={`${question.id}-user-answer`}>Your Answer</Label>
+            <Textarea
+              id={`${question.id}-user-answer`}
+              value={userAnswer}
+              onChange={(e) => {
+                setUserAnswer(e.target.value)
+                setQuestionProperty('userAnswer', e.target.value)
+              }}
+              placeholder="Type your answer here..."
+              className="resize-y"
+            />
+             <Button onClick={onGetFeedback} disabled={isFeedbackLoading || !userAnswer}>
+              {isFeedbackLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Analyzing...
+                </>
+              ) : (
+                <>
+                  <Send className="mr-2 h-4 w-4" />
+                  Get Feedback
+                </>
+              )}
+            </Button>
+            {isFeedbackLoading && <Skeleton className="h-16 w-full" />}
+            {question.answerFeedback && !isFeedbackLoading && (
+              <div className="w-full mt-4 p-4 bg-green-50 border border-green-200 rounded-lg text-sm text-gray-800">
+                <p className="font-bold flex items-center mb-2 text-green-700">
+                  <Sparkles className="h-4 w-4 mr-2" /> Tutor Feedback
+                </p>
+                <Separator className="mb-2 bg-green-200" />
+                <p className="whitespace-pre-wrap">{question.answerFeedback}</p>
+              </div>
+            )}
+          </div>
+        )}
          {question.learningOutcome && (
             <div className="mt-4 p-3 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-700 flex items-start gap-3">
                  <Target className="h-5 w-5 mt-0.5 text-primary/80 flex-shrink-0" />
@@ -142,14 +206,14 @@ export default function QuestionCard({
           ))}
           <Button variant="ghost" size="sm" onClick={getExplanation} disabled={isExplanationLoading}>
             <Lightbulb className="mr-2 h-4 w-4" />
-            {explanation ? 'Hide' : 'Explain Answer'}
+            {explanation ? 'Hide Correct Answer' : 'Show Correct Answer'}
           </Button>
         </div>
         {isExplanationLoading && <Skeleton className="h-16 w-full" />}
         {explanation && !isExplanationLoading && (
           <div className="w-full p-4 bg-blue-50 border border-blue-200 rounded-lg text-sm text-gray-800">
             <p className="font-bold flex items-center mb-2 text-primary">
-              <Sparkles className="h-4 w-4 mr-2" /> Explanation
+              <Sparkles className="h-4 w-4 mr-2" /> Correct Answer
             </p>
             <Separator className="mb-2" />
             <p className="whitespace-pre-wrap">{explanation}</p>
