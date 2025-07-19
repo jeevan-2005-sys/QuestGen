@@ -23,6 +23,10 @@ const QuestionSchema = z.object({
   options: z.array(z.string()).optional().describe('An array of options for multiple-choice questions.'),
   answer: z.string().describe('The correct answer for the question. For MCQs, it should be one of the options.'),
   marks: z.number().describe('The marks allocated to the question.'),
+  bloomsLevel: z
+    .enum(['Remembering', 'Understanding', 'Applying', 'Analyzing', 'Evaluating', 'Creating'])
+    .describe("The question's level in Bloom's Taxonomy."),
+  learningOutcome: z.string().describe('The specific learning outcome this question assesses.'),
 });
 
 const GenerateQuestionsOutputSchema = z.object({
@@ -48,7 +52,7 @@ const prompt = ai.definePrompt({
   - 2 Long Answer questions (5 marks each)
 
 For each Multiple-Choice question, provide 4 options and the correct answer.
-For all questions, provide the question text, type, the correct answer, and the marks.
+For all questions, provide the question text, type, the correct answer, the marks, the Bloom's Taxonomy level it corresponds to (e.g., 'Remembering', 'Understanding', 'Applying', 'Analyzing', 'Evaluating', 'Creating'), and a specific learning outcome it assesses.
 
 Syllabus Content:
 {{{syllabus}}}

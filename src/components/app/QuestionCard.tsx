@@ -2,7 +2,7 @@
 
 import { useState, type Dispatch, type SetStateAction } from 'react';
 import Image from 'next/image';
-import { Lightbulb, Sparkles } from 'lucide-react';
+import { Lightbulb, Sparkles, Target } from 'lucide-react';
 
 import type { Question, QuestionFeedback } from '@/lib/types';
 import { cn } from '@/lib/utils';
@@ -69,14 +69,21 @@ export default function QuestionCard({
   return (
     <Card className="shadow-md transition-shadow hover:shadow-lg mb-4">
       <CardHeader>
+        <div className="flex justify-between items-start mb-2">
+            <div className="flex gap-2">
+                 {question.bloomsLevel && (
+                    <Badge variant="outline">{question.bloomsLevel}</Badge>
+                )}
+                 {question.marks && (
+                    <Badge variant="secondary">{question.marks} Mark{question.marks > 1 ? 's' : ''}</Badge>
+                )}
+            </div>
+        </div>
         <CardTitle className="text-lg font-body flex items-start justify-between">
             <div className='flex items-start'>
                 <span className="text-primary font-bold mr-3">{questionNumber}.</span>
                 <p className="flex-1 whitespace-pre-wrap">{question.question}</p>
             </div>
-            {question.marks && (
-                <Badge variant="secondary">{question.marks} Mark{question.marks > 1 ? 's' : ''}</Badge>
-            )}
         </CardTitle>
       </CardHeader>
       
@@ -101,6 +108,15 @@ export default function QuestionCard({
                 </div>
               ))}
             </RadioGroup>
+        )}
+         {question.learningOutcome && (
+            <div className="mt-4 p-3 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-700 flex items-start gap-3">
+                 <Target className="h-5 w-5 mt-0.5 text-primary/80 flex-shrink-0" />
+                 <div>
+                    <p className="font-semibold text-primary/90">Learning Outcome</p>
+                    <p className="whitespace-pre-wrap">{question.learningOutcome}</p>
+                 </div>
+            </div>
         )}
       </CardContent>
 

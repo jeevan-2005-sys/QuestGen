@@ -1,5 +1,6 @@
 export type QuestionFeedback = 'Got it' | 'Struggled' | 'Wrong' | null;
 export type QuestionType = 'Multiple-Choice' | 'Short Answer' | 'Long Answer';
+export type BloomsLevel = 'Remembering' | 'Understanding' | 'Applying' | 'Analyzing' | 'Evaluating' | 'Creating';
 
 export type Question = {
   id: string;
@@ -12,4 +13,6 @@ export type Question = {
   options?: string[];
   answer?: string;
   marks?: number;
+  bloomsLevel?: BloomsLevel;
+  learningOutcome?: string;
 };

@@ -36,6 +36,8 @@ export default function Home() {
         marks: q.marks,
         feedback: null,
         topic: `${source === 'pdf' ? 'PDF' : 'Syllabus'}-based`,
+        bloomsLevel: q.bloomsLevel,
+        learningOutcome: q.learningOutcome,
       }));
       setQuestions(parsedQuestions);
     } catch (e) {
@@ -69,6 +71,8 @@ export default function Home() {
         feedback: null,
         topic: data.topic,
         marks: 5, // Default marks for visual questions
+        bloomsLevel: 'Applying', // Default for visual questions
+        learningOutcome: 'Analyze visual information to draw conclusions.', // Default for visual questions
       }));
       setQuestions(parsedQuestions);
     } catch (e) {
