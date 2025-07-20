@@ -30,6 +30,7 @@ const QuestionSchema = z.object({
   skill: z
     .enum(['Analytical Ability', 'Reasoning', 'Problem Solving', 'Critical Thinking', 'Creativity'])
     .describe('The primary cognitive skill assessed by the question.'),
+  requiresVisual: z.boolean().describe('Set to true if the answer to this question would be significantly improved with a visual diagram or illustration.'),
 });
 
 const GenerateQuestionsOutputSchema = z.object({
@@ -56,6 +57,7 @@ const prompt = ai.definePrompt({
 
 For each Multiple-Choice question, provide 4 options and the correct answer.
 For all questions, provide the question text, type, the correct answer, the marks, the Bloom's Taxonomy level, a specific learning outcome it assesses, and the primary skill it tests (e.g., 'Analytical Ability', 'Reasoning', 'Problem Solving').
+For each question, also determine if a visual explanation (like a diagram or chart) would be helpful for the answer and set the 'requiresVisual' flag to true or false accordingly.
 
 Syllabus Content:
 {{{syllabus}}}

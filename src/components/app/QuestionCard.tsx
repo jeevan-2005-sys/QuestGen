@@ -3,7 +3,7 @@
 
 import { useState, type Dispatch, type SetStateAction } from 'react';
 import Image from 'next/image';
-import { Lightbulb, Sparkles, Target, Send, Loader2, BookCopy, Award } from 'lucide-react';
+import { Lightbulb, Sparkles, Target, Send, Loader2, BookCopy, Award, Image as ImageIcon } from 'lucide-react';
 
 import type { Question, QuestionFeedback } from '@/lib/types';
 import { cn } from '@/lib/utils';
@@ -16,12 +16,13 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { handleExplainAnswer, handleGetAnswerFeedback } from '@/app/actions';
+import { handleExplainAnswer, handleGetAnswerFeedback, handleGenerateVisualExplanation } from '@/app/actions';
 import { Skeleton } from '../ui/skeleton';
 import { Badge } from '../ui/badge';
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 import { Label } from '../ui/label';
 import { Textarea } from '../ui/textarea';
+import { useToast } from '@/hooks/use-toast';
 
 type QuestionCardProps = {
   question: Question;
@@ -40,6 +41,8 @@ export default function QuestionCard({
   const [isExplanationLoading, setIsExplanationLoading] = useState(false);
   const [userAnswer, setUserAnswer] = useState(question.userAnswer || '');
   const [isFeedbackLoading, setIsFeedbackLoading] = useState(false);
+  const [isVisualLoading, setIsVisualLoading] = useState(false);
+  const { toast } = useToast();
   
   const setQuestionProperty = (key: keyof Question, value: any) => {
     setQuestions((prev) => 
@@ -99,7 +102,32 @@ export default function QuestionCard({
     } finally {
       setIsFeedbackLoading(false);
     }
-  }
+  };
+
+  const onVisualize = async () => {
+    if (isVisualLoading || !question.answer) return;
+    setIsVisualLoading(true);
+    toast({
+      title: 'Generating Visualization...',
+      description: 'This may take a moment. Please wait.',
+    });
+    try {
+      const result = await handleGenerateVisualExplanation({
+        question: question.question,
+        answer: question.answer,
+      });
+      setQuestionProperty('imageDataUri', result.imageDataUri);
+    } catch (error) {
+      console.error('Failed to generate visualization:', error);
+      toast({
+        title: 'Visualization Failed',
+        description: 'Sorry, we could not generate a visual at this time.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsVisualLoading(false);
+    }
+  };
 
   const feedbackOptions: QuestionFeedback[] = ['Got it', 'Struggled', 'Wrong'];
   const showAnswerInput = ['Short Answer', 'Long Answer'].includes(question.questionType);
@@ -132,7 +160,8 @@ export default function QuestionCard({
       </CardHeader>
       
       <CardContent>
-        {question.imageDataUri && (
+        {isVisualLoading && <Skeleton className="w-full h-64 border rounded-md" />}
+        {!isVisualLoading && question.imageDataUri && (
           <div className="relative w-full h-64 border rounded-md overflow-hidden mb-4">
             <Image
               src={question.imageDataUri}
@@ -248,6 +277,12 @@ export default function QuestionCard({
             <Lightbulb className="mr-2 h-4 w-4" />
             {explanation ? 'Hide Correct Answer' : 'Show Correct Answer'}
           </Button>
+           {question.requiresVisual && !question.imageDataUri && (
+            <Button variant="ghost" size="sm" onClick={onVisualize} disabled={isVisualLoading}>
+              {isVisualLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ImageIcon className="mr-2 h-4 w-4" />}
+              Visualize Answer
+            </Button>
+          )}
         </div>
         {isExplanationLoading && <Skeleton className="h-16 w-full" />}
         {explanation && !isExplanationLoading && (

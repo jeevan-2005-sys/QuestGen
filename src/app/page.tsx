@@ -37,6 +37,7 @@ export default function Home() {
         bloomsLevel: q.bloomsLevel,
         learningOutcome: q.learningOutcome,
         skill: q.skill,
+        requiresVisual: q.requiresVisual,
       }));
       setQuestions(parsedQuestions);
     } catch (e) {

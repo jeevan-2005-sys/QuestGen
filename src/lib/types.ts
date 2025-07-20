@@ -33,4 +33,5 @@ export type Question = {
   answerFeedback?: string | null;
   suggestedAnswer?: string | null;
   predictedMarks?: number | null;
+  requiresVisual?: boolean;
 };

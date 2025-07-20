@@ -20,6 +20,11 @@ import {
   type GetAnswerFeedbackInput,
   type GetAnswerFeedbackOutput,
 } from '@/ai/flows/get-answer-feedback';
+import {
+  generateVisualExplanation,
+  type GenerateVisualExplanationInput,
+  type GenerateVisualExplanationOutput,
+} from '@/ai/flows/generate-visual-explanation';
 
 
 export async function handleGenerateQuestions(
@@ -44,4 +49,10 @@ export async function handleGetAnswerFeedback(
   input: GetAnswerFeedbackInput
 ): Promise<GetAnswerFeedbackOutput> {
   return await getAnswerFeedback(input);
+}
+
+export async function handleGenerateVisualExplanation(
+  input: GenerateVisualExplanationInput
+): Promise<GenerateVisualExplanationOutput> {
+  return await generateVisualExplanation(input);
 }
