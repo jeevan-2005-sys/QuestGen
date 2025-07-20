@@ -8,6 +8,13 @@ export type BloomsLevel =
   | 'Evaluating'
   | 'Creating';
 
+export type Skill =
+  | 'Analytical Ability'
+  | 'Reasoning'
+  | 'Problem Solving'
+  | 'Critical Thinking'
+  | 'Creativity';
+
 export type Question = {
   id: string;
   question: string;
@@ -21,6 +28,7 @@ export type Question = {
   marks?: number;
   bloomsLevel?: BloomsLevel;
   learningOutcome?: string;
+  skill?: Skill;
   userAnswer?: string | null;
   answerFeedback?: string | null;
   suggestedAnswer?: string | null;

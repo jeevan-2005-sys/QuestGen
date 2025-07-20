@@ -27,6 +27,9 @@ const QuestionSchema = z.object({
     .enum(['Remembering', 'Understanding', 'Applying', 'Analyzing', 'Evaluating', 'Creating'])
     .describe("The question's level in Bloom's Taxonomy."),
   learningOutcome: z.string().describe('The specific learning outcome this question assesses.'),
+  skill: z
+    .enum(['Analytical Ability', 'Reasoning', 'Problem Solving', 'Critical Thinking', 'Creativity'])
+    .describe('The primary cognitive skill assessed by the question.'),
 });
 
 const GenerateQuestionsOutputSchema = z.object({
@@ -52,7 +55,7 @@ const prompt = ai.definePrompt({
   - 2 Long Answer questions (5 marks each)
 
 For each Multiple-Choice question, provide 4 options and the correct answer.
-For all questions, provide the question text, type, the correct answer, the marks, the Bloom's Taxonomy level it corresponds to (e.g., 'Remembering', 'Understanding', 'Applying', 'Analyzing', 'Evaluating', 'Creating'), and a specific learning outcome it assesses.
+For all questions, provide the question text, type, the correct answer, the marks, the Bloom's Taxonomy level, a specific learning outcome it assesses, and the primary skill it tests (e.g., 'Analytical Ability', 'Reasoning', 'Problem Solving').
 
 Syllabus Content:
 {{{syllabus}}}

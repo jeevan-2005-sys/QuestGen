@@ -106,6 +106,9 @@ export default function QuestionCard({
                  {question.questionType && (
                     <Badge variant="outline" className="border-primary text-primary">{question.questionType}</Badge>
                 )}
+                 {question.skill && (
+                    <Badge variant="secondary">{question.skill}</Badge>
+                )}
                  {question.bloomsLevel && (
                     <Badge variant="outline">{question.bloomsLevel}</Badge>
                 )}
