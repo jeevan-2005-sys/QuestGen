@@ -1,19 +1,16 @@
 'use client';
 
 import { useState } from 'react';
-import { BookText, ImageIcon, FileText } from 'lucide-react';
+import { BookText, FileText } from 'lucide-react';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   handleGenerateQuestions,
-  handleGenerateVisualQuestions,
 } from '@/app/actions';
 import type { Question } from '@/lib/types';
-import type { GenerateImageQuestionsInput } from '@/ai/flows/generate-image-questions';
 import Header from '@/components/app/Header';
 import SyllabusForm from '@/components/app/SyllabusForm';
 import PdfForm from '@/components/app/PdfForm';
-import VisualQuestionForm from '@/components/app/VisualQuestionForm';
 import QuestionArea from '@/components/app/QuestionArea';
 import Footer from '@/components/app/Footer';
 
@@ -58,41 +55,13 @@ export default function Home() {
     await onGenerateFromText(data.content, 'pdf');
   };
 
-  const onGenerateVisual = async (data: GenerateImageQuestionsInput) => {
-    setIsLoading(true);
-    setError(null);
-    setQuestions([]);
-    try {
-      const result = await handleGenerateVisualQuestions(data);
-      const parsedQuestions: Question[] = result.questions.map((q, index) => ({
-        id: `visual-${index}-${Date.now()}`,
-        question: q.question,
-        questionType: 'Long Answer', // Visual questions are treated as LAQ
-        imageDataUri: q.imageDataUri,
-        explanation: q.explanation,
-        feedback: null,
-        topic: data.topic,
-        marks: 5, // Default marks for visual questions
-        bloomsLevel: 'Applying', // Default for visual questions
-        learningOutcome: 'Analyze visual information to draw conclusions.', // Default for visual questions
-        skill: 'Analytical Ability',
-      }));
-      setQuestions(parsedQuestions);
-    } catch (e) {
-      setError('Failed to generate visual questions. Please try again.');
-      console.error(e);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   return (
     <div className="flex flex-col min-h-screen bg-background">
       <Header />
       <main className="flex-grow container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
           <Tabs defaultValue="syllabus" className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="syllabus">
                 <BookText className="mr-2 h-4 w-4" />
                 From Syllabus
@@ -101,22 +70,12 @@ export default function Home() {
                 <FileText className="mr-2 h-4 w-4" />
                 From PDF
               </TabsTrigger>
-              <TabsTrigger value="visual">
-                <ImageIcon className="mr-2 h-4 w-4" />
-                Visual Questions
-              </TabsTrigger>
             </TabsList>
             <TabsContent value="syllabus">
               <SyllabusForm onSubmit={onGenerateSyllabus} isLoading={isLoading} />
             </TabsContent>
             <TabsContent value="pdf">
               <PdfForm onSubmit={onGeneratePdf} isLoading={isLoading} />
-            </TabsContent>
-            <TabsContent value="visual">
-              <VisualQuestionForm
-                onSubmit={onGenerateVisual}
-                isLoading={isLoading}
-              />
             </TabsContent>
           </Tabs>
 
