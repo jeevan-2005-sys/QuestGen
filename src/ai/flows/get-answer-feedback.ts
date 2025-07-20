@@ -28,6 +28,9 @@ const GetAnswerFeedbackOutputSchema = z.object({
   suggestedAnswer: z
     .string()
     .describe("A revised version of the user's answer, incorporating the feedback."),
+  predictedMarks: z
+    .number()
+    .describe("The predicted marks for the user's answer."),
 });
 export type GetAnswerFeedbackOutput = z.infer<typeof GetAnswerFeedbackOutputSchema>;
 
@@ -48,6 +51,7 @@ const prompt = ai.definePrompt({
   3.  **Assess Answer Length:** Based on the allocated marks ({{{marks}}}), evaluate if the user's answer has sufficient length and detail. If it's too short, suggest which points could be elaborated.
   4.  **Provide Guidance:** Explain clearly why their answer is incorrect or incomplete.
   5.  **Suggest Improvements:** Offer a revised version of their answer that is correct and complete.
+  6.  **Predict Marks:** Based on your analysis, predict the marks the user would receive out of the total available marks ({{{marks}}}).
 
   Be encouraging and helpful in your tone.
 

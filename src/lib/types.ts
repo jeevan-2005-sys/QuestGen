@@ -32,4 +32,5 @@ export type Question = {
   userAnswer?: string | null;
   answerFeedback?: string | null;
   suggestedAnswer?: string | null;
+  predictedMarks?: number | null;
 };
