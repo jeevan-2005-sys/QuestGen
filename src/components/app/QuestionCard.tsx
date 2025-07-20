@@ -49,13 +49,18 @@ export default function QuestionCard({
 
   const setFeedback = (feedback: QuestionFeedback) => {
     setQuestionProperty('feedback', feedback);
+    if (feedback === 'Struggled' || feedback === 'Wrong') {
+      getExplanation();
+    }
   };
 
   const getExplanation = async () => {
-    if (explanation) {
+    if (explanation && !isExplanationLoading) {
       setExplanation(null); // Toggle off if already visible
       return;
     }
+    if (isExplanationLoading) return;
+
     setIsExplanationLoading(true);
     try {
       const result = await handleExplainAnswer({
