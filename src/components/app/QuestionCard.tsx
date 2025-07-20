@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, type Dispatch, type SetStateAction } from 'react';
@@ -101,7 +102,10 @@ export default function QuestionCard({
     <Card className="shadow-md transition-shadow hover:shadow-lg mb-4">
       <CardHeader>
         <div className="flex justify-between items-start mb-2">
-            <div className="flex gap-2">
+            <div className="flex gap-2 flex-wrap">
+                 {question.questionType && (
+                    <Badge variant="outline" className="border-primary text-primary">{question.questionType}</Badge>
+                )}
                  {question.bloomsLevel && (
                     <Badge variant="outline">{question.bloomsLevel}</Badge>
                 )}
